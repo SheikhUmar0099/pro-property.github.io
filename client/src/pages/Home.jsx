@@ -71,7 +71,10 @@ export default function Home() {
       </div>
 
       {/* Swiper */}
-      <Swiper navigation>
+      <Swiper navigation={{
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        }} className="my-10 relative">
         {offerListings.map((listing) => (
           <SwiperSlide key={listing._id}>
             <div
@@ -79,10 +82,20 @@ export default function Home() {
                 background: `url(${listing.imageUrls[0]}) center no-repeat`,
                 backgroundSize: 'cover',
               }}
-              className="h-96"
+              className="h-96 rounded-lg shadow-lg"
             ></div>
           </SwiperSlide>
         ))}
+        <div className="swiper-button-next right-2 absolute top-1/2 transform -translate-y-1/2 bg-[#222021] text-[#ffa500] rounded-full w-10 h-10 flex justify-center items-center hover:bg-[#ffa500] hover:text-[#222021]">
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L11.586 9 7.293 4.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <div className="swiper-button-prev left-2 absolute top-1/2 transform -translate-y-1/2 bg-[#222021] text-[#ffa500] rounded-full w-10 h-10 flex justify-center items-center hover:bg-[#ffa500] hover:text-[#222021]">
+          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 14.707a1 1 0 010-1.414L8.414 9l4.293-4.293a1 1 0 00-1.414-1.414l-5 5a1 1 0 000 1.414l5 5a1 1 0 001.414 0z" clipRule="evenodd" />
+          </svg>
+        </div>
       </Swiper>
 
       {/* Listings */}

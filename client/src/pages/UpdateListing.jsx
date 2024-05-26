@@ -11,6 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const UpdateListing = () => {
   const [files, setFiles] = useState([]);
+  const [fileNames, setFileNames] = useState([]);
   const [formData, setFormData] = useState({
     imageUrls: [],
     name: "",
@@ -34,9 +35,6 @@ const UpdateListing = () => {
   const navigate = useNavigate();
   const params = useParams();  
 
-
-
-
   useEffect(() => {
     const fetchListing = async () => {
         const listingId = params.listingId;
@@ -51,17 +49,22 @@ const UpdateListing = () => {
     };
 
     fetchListing();
-
-  }, []);
-
+  }, [params.listingId]);
 
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       setUploading(true);
       setImageUploadError(false);
       const promises = [];
+      const newFileNames = [];
 
       for (let i = 0; i < files.length; i++) {
+        if (files[i].size > 2 * 1024 * 1024) {
+          setImageUploadError("Image upload failed. (2 mb max per image)");
+          setUploading(false);
+          return;
+        }
+        newFileNames.push(files[i].name);
         promises.push(storeImage(files[i]));
       }
       Promise.all(promises)
@@ -70,6 +73,7 @@ const UpdateListing = () => {
             ...formData,
             imageUrls: formData.imageUrls.concat(urls),
           });
+          setFileNames(fileNames.concat(newFileNames));
           setImageUploadError(false);
           setUploading(false);
         })
@@ -114,6 +118,7 @@ const UpdateListing = () => {
       ...formData,
       imageUrls: formData.imageUrls.filter((_, i) => i !== index),
     });
+    setFileNames(fileNames.filter((_, i) => i !== index));
   };
 
   const handleChange = (e) => {
@@ -136,9 +141,9 @@ const UpdateListing = () => {
     }
 
     if (
-      e.target.type == "number" ||
-      e.target.type == "text" ||
-      e.target.type == "textarea"
+      e.target.type === "number" ||
+      e.target.type === "text" ||
+      e.target.type === "textarea"
     ) {
       setFormData({
         ...formData,
@@ -185,8 +190,8 @@ const UpdateListing = () => {
   };
 
   return (
-    <main className="p-3 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-semibold text-center my-7">
+    <main className="bg-[#222021] text-white min-h-screen p-3">
+      <h1 className="text-3xl font-semibold text-center my-7 text-[#ffa500]">
         Update Listing
       </h1>
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-6">
@@ -194,7 +199,7 @@ const UpdateListing = () => {
           <input
             type="text"
             placeholder="Name"
-            className="border p-3 rounded-lg"
+            className="border p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ffa500]"
             id="name"
             maxLength="62"
             minLength="10"
@@ -205,7 +210,7 @@ const UpdateListing = () => {
           <textarea
             type="text"
             placeholder="Description"
-            className="border p-3 rounded-lg"
+            className="border p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ffa500]"
             id="description"
             required
             onChange={handleChange}
@@ -214,7 +219,7 @@ const UpdateListing = () => {
           <input
             type="text"
             placeholder="Address"
-            className="border p-3 rounded-lg"
+            className="border p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ffa500]"
             id="address"
             required
             onChange={handleChange}
@@ -222,54 +227,104 @@ const UpdateListing = () => {
           />
 
           <div className="flex gap-6 flex-wrap">
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="checkbox"
                 id="sale"
-                className="w-5"
+                className="hidden"
                 onChange={handleChange}
                 checked={formData.type === "sale"}
               />
+              <label
+                htmlFor="sale"
+                className={`cursor-pointer w-5 h-5 border-2 rounded-md flex justify-center items-center ${formData.type === 'sale' ? 'bg-[#ffa500] border-[#ffa500]' : 'border-white'}`}
+              >
+                {formData.type === 'sale' && (
+                  <svg className='w-3 h-3 text-black' viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414-1.414L7 12.172 4.707 9.879a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l9-9z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </label>
               <span>Sell</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="checkbox"
                 id="rent"
-                className="w-5"
+                className="hidden"
                 onChange={handleChange}
                 checked={formData.type === "rent"}
               />
+              <label
+                htmlFor="rent"
+                className={`cursor-pointer w-5 h-5 border-2 rounded-md flex justify-center items-center ${formData.type === 'rent' ? 'bg-[#ffa500] border-[#ffa500]' : 'border-white'}`}
+              >
+                {formData.type === 'rent' && (
+                  <svg className='w-3 h-3 text-black' viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414-1.414L7 12.172 4.707 9.879a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l9-9z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </label>
               <span>Rent</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="checkbox"
                 id="parking"
-                className="w-5"
+                className="hidden"
                 onChange={handleChange}
                 checked={formData.parking}
               />
+              <label
+                htmlFor="parking"
+                className={`cursor-pointer w-5 h-5 border-2 rounded-md flex justify-center items-center ${formData.parking ? 'bg-[#ffa500] border-[#ffa500]' : 'border-white'}`}
+              >
+                {formData.parking && (
+                  <svg className='w-3 h-3 text-black' viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414-1.414L7 12.172 4.707 9.879a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </label>
               <span>Parking spot</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="checkbox"
                 id="furnished"
-                className="w-5"
+                className="hidden"
                 onChange={handleChange}
                 checked={formData.furnished}
               />
+              <label
+                htmlFor="furnished"
+                className={`cursor-pointer w-5 h-5 border-2 rounded-md flex justify-center items-center ${formData.furnished ? 'bg-[#ffa500] border-[#ffa500]' : 'border-white'}`}
+              >
+                {formData.furnished && (
+                  <svg className='w-3 h-3 text-black' viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414-1.414L7 12.172 4.707 9.879a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </label>
               <span>Furnished</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center">
               <input
                 type="checkbox"
                 id="offer"
-                className="w-5"
+                className="hidden"
                 onChange={handleChange}
                 checked={formData.offer}
               />
+              <label
+                htmlFor="offer"
+                className={`cursor-pointer w-5 h-5 border-2 rounded-md flex justify-center items-center ${formData.offer ? 'bg-[#ffa500] border-[#ffa500]' : 'border-white'}`}
+              >
+                {formData.offer && (
+                  <svg className='w-3 h-3 text-black' viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 00-1.414-1.414L7 12.172 4.707 9.879a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </label>
               <span>Offer</span>
             </div>
           </div>
@@ -282,7 +337,7 @@ const UpdateListing = () => {
                 min="1"
                 max="10"
                 required
-                className="p-3 border border-gray-300 rounded-lg"
+                className="p-3 border border-gray-300 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#ffa500]"
                 onChange={handleChange}
                 value={formData.bedrooms}
               />
@@ -295,7 +350,7 @@ const UpdateListing = () => {
                 min="1"
                 max="10"
                 required
-                className="p-3 border border-gray-300 rounded-lg"
+                className="p-3 border border-gray-300 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#ffa500]"
                 onChange={handleChange}
                 value={formData.bathrooms}
               />
@@ -308,7 +363,7 @@ const UpdateListing = () => {
                 min="50"
                 max="10000000"
                 required
-                className="p-3 border border-gray-300 rounded-lg"
+                className="p-3 border border-gray-300 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#ffa500]"
                 onChange={handleChange}
                 value={formData.regularPrice}
               />
@@ -324,7 +379,7 @@ const UpdateListing = () => {
                   min="0"
                   max="10000000"
                   required
-                  className="p-3 border border-gray-300 rounded-lg"
+                  className="p-3 border border-gray-300 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#ffa500]"
                   onChange={handleChange}
                   value={formData.discountPrice}
                 />
@@ -340,26 +395,32 @@ const UpdateListing = () => {
         </div>
 
         <div className="flex flex-col flex-1 gap-4">
-          <p className="font-semibold">
+          <p className="font-semibold text-[#ffa500]">
             Images:
-            <span className="font-normal text-gray-600 ml-2">
+            <span className="font-normal text-gray-300 ml-2">
               The first image will be the cover (max 6)
             </span>
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             <input
               onChange={(e) => setFiles(e.target.files)}
-              className="p-3 border border-gray-300 rounded w-full"
+              className="hidden"
               type="file"
               id="images"
               accept="image/*"
               multiple
             />
+            <label
+              htmlFor="images"
+              className="p-3 bg-[#ffa500] text-black rounded-lg cursor-pointer hover:opacity-95"
+            >
+              Choose Files
+            </label>
             <button
               disabled={uploading}
               onClick={handleImageSubmit}
               type="button"
-              className="p-3 text-green-700 border border-green-700 rounded uppercase hover:shadow-lg disabled:opacity-80"
+              className="p-3 text-[#ffa500] border border-[#ffa500] rounded-lg uppercase hover:bg-[#ffa500] hover:text-[#222021] hover:shadow-lg disabled:opacity-80"
             >
               {uploading ? "Uploading..." : "Upload"}
             </button>
@@ -371,24 +432,29 @@ const UpdateListing = () => {
             formData.imageUrls.map((url, index) => (
               <div
                 key={url}
-                className="flex justify-between p-3 border items-center"
+                className="flex justify-between p-3 border items-center bg-gray-700 rounded-lg"
               >
-                <img
-                  src={url}
-                  alt="listing image"
-                  className="w-20 h-20 object-contain rounded-lg"
-                />
+                <div className="flex items-center gap-2">
+                  <img
+                    src={url}
+                    alt="listing image"
+                    className="w-20 h-20 object-contain rounded-lg"
+                  />
+                  <span className="text-gray-300 truncate">{fileNames[index] || url.split('/').pop()}</span>
+                </div>
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(index)}
-                  className="p-3 text-red-700 rounded-lg uppercase hover:opacity-75"
+                  className="p-3 text-white bg-red-700 border border-red-700 rounded-lg uppercase hover:bg-red-800 hover:border-red-800"
                 >
                   Delete
                 </button>
               </div>
             ))}
-          ;
-          <button disabled={loading || uploading} className="p-3 bg-slate-700 text-white rounded-lg uppercase hover:opacity-95 disabled:opacity-80">
+          <button
+            disabled={loading || uploading}
+            className="p-3 bg-[#ffa500] text-black rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
+          >
             {loading ? "Updating..." : "Update Listing"}
           </button>
           {error && <p className="text-red-700 text-sm">{error}</p>}

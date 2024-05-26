@@ -35,10 +35,16 @@ const Header = () => {
         </Link>
         <ul className="flex gap-4">
           <Link to="/">
-            <li className="text-white hover:underline">Home</li>
+            <li className="text-white relative group">
+              Home
+              <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#ffa500] transition-all duration-300 group-hover:w-full"></span>
+            </li>
           </Link>
           <Link to="/about">
-            <li className="text-white hover:underline">About</li>
+            <li className="text-white relative group">
+              About
+              <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#ffa500] transition-all duration-300 group-hover:w-full"></span>
+            </li>
           </Link>
         </ul>
         <div className="flex items-center gap-4">
@@ -60,10 +66,13 @@ const Header = () => {
               <img
                 src={currentUser.avatar}
                 alt="avatar"
-                className="rounded-full h-7 w-7 object-cover"
+                className="rounded-full h-10 w-10 object-cover border-2 border-transparent hover:border-[#ffa500] transition duration-300"
               />
             ) : (
-              <li className="text-white hover:underline">Sign In</li>
+              <li className="text-white relative group">
+                Sign In
+                <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-[#ffa500] transition-all duration-300 group-hover:w-full"></span>
+              </li>
             )}
           </Link>
         </div>
